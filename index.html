@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة - شركة الشرق الأوسط</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            background-color: #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Controls */
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .controls button {
+            padding: 10px 25px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+        }
+
+        .btn-print { background-color: #0a7ad4; }
+        .btn-print:hover { background-color: #0868b0; }
+        .btn-new { background-color: #27ae60; }
+        .btn-new:hover { background-color: #1e8449; }
+        .btn-lang { background-color: #8e44ad; }
+        .btn-lang:hover { background-color: #7d3c98; }
+
+        .invoice-counter {
+            background: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #0a7ad4;
+            border: 2px solid #0a7ad4;
+        }
+
+        /* Invoice Page */
+        .invoice-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
+            border: 1px solid #ccc;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #0a7ad4;
+        }
+
+        .company-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            text-align: right;
+        }
+
+        .company-logo {
+            width: 80px;
+            height: 80px;
+        }
+
+        .logo-upload {
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: opacity 0.2s;
+        }
+
+        .logo-upload:hover {
+            opacity: 0.75;
+        }
+
+        .logo-upload:hover::after {
+            content: '📷';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.6);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        .logo-upload img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .company-details h2 {
+            font-size: 22px;
+            color: #0a7ad4;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .company-details p {
+            font-size: 14px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        .company-details .section-name {
+            font-size: 16px;
+            color: #0a7ad4;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .invoice-title-area {
+            text-align: left;
+        }
+
+        .invoice-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0a7ad4;
+            letter-spacing: 3px;
+        }
+
+        .invoice-date {
+            font-size: 16px;
+            color: #333;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        /* Reference */
+        .ref-line {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 25px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Client Section */
+        .client-section {
+            margin-bottom: 25px;
+            text-align: right;
+        }
+
+        .client-section .label {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .client-section .client-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0a7ad4;
+        }
+
+        .client-section .dear {
+            font-size: 15px;
+            color: #555;
+        }
+
+        /* Amounts */
+        .amounts-section {
+            margin-bottom: 25px;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .amount-row {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .amount-row .currency-label {
+            font-weight: 700;
+            min-width: 50px;
+        }
+
+        .amount-input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            color: #333;
+            padding: 2px 6px;
+            width: 180px;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-bottom: 2px solid #0a7ad4;
+        }
+
+        .currency-select {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            color: #333;
+            background: #f9f9f9;
+            cursor: pointer;
+        }
+
+        .currency-select:focus {
+            outline: none;
+            border-color: #0a7ad4;
+        }
+
+        /* Notes */
+        .notes-section {
+            margin-bottom: 40px;
+            text-align: right;
+        }
+
+        .notes-section .label {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .notes-section .notes-content {
+            font-size: 15px;
+            color: #333;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Stamp & Issuer */
+        .stamp-section {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            text-align: right;
+        }
+
+        .stamp-svg {
+            width: 220px;
+            height: 280px;
+            opacity: 0.9;
+        }
+
+        .stamp-upload {
+            width: 250px;
+            min-height: 200px;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+
+        .stamp-upload:hover {
+            opacity: 0.75;
+        }
+
+        .stamp-upload:hover::after {
+            content: attr(data-hover);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Cairo', sans-serif;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .stamp-upload img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .stamp-placeholder {
+            width: 250px;
+            height: 200px;
+            border: 2px dashed #aaa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .issuer-line {
+            font-size: 15px;
+            color: #333;
+            margin-top: 10px;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Separator */
+        .separator {
+            border: none;
+            border-top: 2px dashed #999;
+            margin: 20px 0;
+        }
+
+        /* Footer */
+        .footer-audit {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .footer-audit .ar {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .footer-audit .en {
+            font-size: 14px;
+            color: #555;
+            direction: ltr;
+        }
+
+        .bottom-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+
+        .bottom-footer .inndirect-logo {
+            font-size: 16px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .page-number {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* Editable fields */
+        [contenteditable="true"] {
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border-bottom: 1px dashed transparent;
+            transition: all 0.2s;
+        }
+
+        [contenteditable="true"]:hover {
+            background-color: #f0f8ff;
+            border-bottom: 1px dashed #0a7ad4;
+        }
+
+        [contenteditable="true"]:focus {
+            background-color: #e8f4fd;
+            border-bottom: 2px solid #0a7ad4;
+        }
+
+        /* Print Styles */
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .controls {
+                display: none !important;
+            }
+
+            .invoice-page {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                padding: 30px 40px;
+                min-height: auto;
+            }
+
+            .amount-input {
+                border: none;
+            }
+
+            [contenteditable="true"] {
+                border-bottom: none !important;
+                background: none !important;
+            }
+
+            .logo-upload:hover::after {
+                display: none !important;
+            }
+
+            .stamp-upload:hover::after {
+                display: none !important;
+            }
+
+            .stamp-placeholder {
+                display: none;
+            }
+
+            .currency-select {
+                appearance: none;
+                -webkit-appearance: none;
+                border: none;
+                background: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn-print" data-i18n="btnPrint" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+        <button class="btn-new" data-i18n="btnNew" onclick="newInvoice()">📄 فاتورة جديدة</button>
+        <button class="btn-lang" onclick="toggleLanguage()">🌐 English</button>
+        <div class="invoice-counter"><span data-i18n="invoiceCounterLabel">رقم الفاتورة:</span> <span id="counterDisplay" contenteditable="true" onblur="syncInvoiceNumber(this)">26014</span></div>
+    </div>
+
+    <div class="invoice-page">
+
+        <!-- Header -->
+        <div class="header">
+            <!-- Company Info (Right) -->
+            <div class="company-info">
+                <!-- Logo - Click to upload -->
+                <div class="logo-upload" id="logoArea" onclick="document.getElementById('logoInput').click()">
+                    <img id="logoImage" src="" alt="شعار الشركة">
+                    <input type="file" id="logoInput" class="hidden-input" accept="image/*" onchange="handleLogoUpload(this)">
+                </div>
+                <div class="company-details">
+                    <h2 data-i18n="companyName">شركة الشرق الأوسط</h2>
+                    <p data-i18n="companyDesc">للخدمات القانونية والمحاماة</p>
+                    <p class="section-name" data-i18n="sectionName">الحسابات</p>
+                </div>
+            </div>
+
+            <!-- Invoice Title & Date (Left) -->
+            <div class="invoice-title-area">
+                <div class="invoice-title" data-i18n="invoiceTitle">فـــاتورة</div>
+                <div class="invoice-date" contenteditable="true" id="invoiceDate">آذار, 09 2026</div>
+            </div>
+        </div>
+
+        <!-- Reference Number -->
+        <div class="ref-line">
+            REF# <span id="refNumber" contenteditable="true" onblur="syncRefNumber(this)">26014</span>
+        </div>
+
+        <!-- Client Section -->
+        <div class="client-section">
+            <div class="label" data-i18n="presentedTo">مقدمة إلى</div>
+            <div class="client-name" contenteditable="true">Atria Solutions S.A.L</div>
+            <div class="dear" data-i18n="dear">المحترمون</div>
+        </div>
+
+        <!-- Amounts -->
+        <div class="amounts-section">
+            <div class="amount-row">
+                <select class="currency-select" id="currency1">
+                    <option value="IQD" selected>IQD:</option>
+                    <option value="USD">USD:</option>
+                </select>
+                <input type="text" class="amount-input" id="amount1" value="0">
+            </div>
+            <div class="amount-row">
+                <select class="currency-select" id="currency2">
+                    <option value="IQD">IQD:</option>
+                    <option value="USD" selected>USD:</option>
+                </select>
+                <input type="text" class="amount-input" id="amount2" value="3,000.00">
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="notes-section">
+            <div class="label" data-i18n="notesLabel">الملاحظات</div>
+            <div class="notes-content" contenteditable="true">Advance legal fees payment</div>
+        </div>
+
+        <!-- Stamp & Issuer -->
+        <div class="stamp-section">
+            <!-- Click to upload stamp/signature image -->
+            <div class="stamp-upload" id="stampArea" data-hover="📷 انقر لرفع صورة الختم" onclick="document.getElementById('stampInput').click()">
+                <img id="stampImage" src="" alt="الختم والتوقيع" style="display:none">
+                <div class="stamp-placeholder" id="stampPlaceholder" data-i18n="stampPlaceholder">📷 انقر لرفع صورة الختم والتوقيع</div>
+                <input type="file" id="stampInput" class="hidden-input" accept="image/*" onchange="handleStampUpload(this)">
+            </div>
+            <div class="issuer-line"><span data-i18n="issuerLabel">Issuer:</span> <span contenteditable="true">علي فوزي</span></div>
+        </div>
+
+        <!-- Separator -->
+        <hr class="separator">
+
+        <!-- Footer Audit Line -->
+        <div class="footer-audit">
+            <div class="ar" data-i18n="auditAr">للأغراض الإدارية والتدقيق</div>
+            <div class="en" data-i18n="auditEn">FOR AUDITING & ADMINISTRATION REASONS</div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="bottom-footer">
+            <div class="inndirect-logo">:::inndirect</div>
+            <div class="page-number">0</div>
+        </div>
+    </div>
+
+    <script>
+        // Auto invoice number system
+        var STORAGE_KEY = 'invoice_last_number';
+        var MONTHS = [
+            'كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
+            'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'
+        ];
+
+        function getTodayArabic() {
+            var now = new Date();
+            return MONTHS[now.getMonth()] + ', ' + String(now.getDate()).padStart(2, '0') + ' ' + now.getFullYear();
+        }
+
+        function getNextNumber() {
+            var last = parseInt(localStorage.getItem(STORAGE_KEY) || '26014', 10);
+            return last;
+        }
+
+        function setNumber(num) {
+            localStorage.setItem(STORAGE_KEY, num.toString());
+            document.getElementById('refNumber').textContent = num;
+            document.getElementById('counterDisplay').textContent = num;
+        }
+
+        function syncInvoiceNumber(el) {
+            var val = el.textContent.trim();
+            document.getElementById('refNumber').textContent = val;
+            localStorage.setItem(STORAGE_KEY, val);
+        }
+
+        function syncRefNumber(el) {
+            var val = el.textContent.trim();
+            document.getElementById('counterDisplay').textContent = val;
+            localStorage.setItem(STORAGE_KEY, val);
+        }
+
+        function newInvoice() {
+            var current = parseInt(localStorage.getItem(STORAGE_KEY) || '26014', 10);
+            var next = current + 1;
+            setNumber(next);
+            document.getElementById('amount1').value = '0';
+            document.getElementById('amount2').value = '0';
+            document.querySelector('.client-name').textContent = '';
+            document.querySelector('.notes-content').textContent = '';
+            document.getElementById('invoiceDate').textContent = currentLang === 'ar' ? getTodayArabic() : getTodayEnglish();
+        }
+
+        // Initialize on load
+        setNumber(getNextNumber());
+        document.getElementById('invoiceDate').textContent = getTodayArabic();
+
+        // Stamp image upload & save
+        function handleStampUpload(input) {
+            var file = input.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                alert(translations[currentLang].sizeAlert);
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.getElementById('stampImage');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                document.getElementById('stampPlaceholder').style.display = 'none';
+                localStorage.setItem('saved_stamp', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Logo image upload & save
+        function handleLogoUpload(input) {
+            var file = input.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                alert(translations[currentLang].sizeAlert);
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoImage').src = e.target.result;
+                localStorage.setItem('saved_logo', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ===== Language System =====
+        var LANG_KEY = 'invoice_lang';
+        var currentLang = localStorage.getItem(LANG_KEY) || 'ar';
+
+        var translations = {
+            ar: {
+                btnPrint: '🖨️ طباعة / حفظ PDF',
+                btnNew: '📄 فاتورة جديدة',
+                btnLang: '🌐 English',
+                invoiceCounterLabel: 'رقم الفاتورة:',
+                companyName: 'شركة الشرق الأوسط',
+                companyDesc: 'للخدمات القانونية والمحاماة',
+                sectionName: 'الحسابات',
+                invoiceTitle: 'فـــاتورة',
+                presentedTo: 'مقدمة إلى',
+                dear: 'المحترمون',
+                notesLabel: 'الملاحظات',
+                stampPlaceholder: '📷 انقر لرفع صورة الختم والتوقيع',
+                issuerLabel: 'المصدر:',
+                auditAr: 'للأغراض الإدارية والتدقيق',
+                auditEn: 'FOR AUDITING & ADMINISTRATION REASONS',
+                sizeAlert: 'حجم الصورة كبير جداً. الحد الأقصى 5 ميغابايت.'
+            },
+            en: {
+                btnPrint: '🖨️ Print / Save PDF',
+                btnNew: '📄 New Invoice',
+                btnLang: '🌐 العربية',
+                invoiceCounterLabel: 'Invoice #:',
+                companyName: 'Middle East Company',
+                companyDesc: 'For Legal Services & Law',
+                sectionName: 'Accounts',
+                invoiceTitle: 'INVOICE',
+                presentedTo: 'Presented to',
+                dear: 'Dear',
+                notesLabel: 'Notes',
+                stampPlaceholder: '📷 Click to upload stamp & signature',
+                issuerLabel: 'Issuer:',
+                auditAr: 'للأغراض الإدارية والتدقيق',
+                auditEn: 'FOR AUDITING & ADMINISTRATION REASONS',
+                sizeAlert: 'Image too large. Maximum 5 MB.'
+            }
+        };
+
+        var MONTHS_EN = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        function getTodayEnglish() {
+            var now = new Date();
+            return MONTHS_EN[now.getMonth()] + ' ' + String(now.getDate()).padStart(2, '0') + ', ' + now.getFullYear();
+        }
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, lang);
+            var t = translations[lang];
+
+            // Update direction
+            document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            // Update all data-i18n elements
+            var els = document.querySelectorAll('[data-i18n]');
+            for (var i = 0; i < els.length; i++) {
+                var key = els[i].getAttribute('data-i18n');
+                if (t[key] !== undefined) {
+                    els[i].textContent = t[key];
+                }
+            }
+
+            // Update language toggle button text
+            document.querySelector('.btn-lang').textContent = t.btnLang;
+
+            // Update date format
+            document.getElementById('invoiceDate').textContent = lang === 'ar' ? getTodayArabic() : getTodayEnglish();
+
+            // Update CSS text-align for sections that depend on language
+            var clientSection = document.querySelector('.client-section');
+            var notesSection = document.querySelector('.notes-section');
+            var stampSection = document.querySelector('.stamp-section');
+            if (lang === 'ar') {
+                clientSection.style.textAlign = 'right';
+                notesSection.style.textAlign = 'right';
+                stampSection.style.textAlign = 'right';
+            } else {
+                clientSection.style.textAlign = 'left';
+                notesSection.style.textAlign = 'left';
+                stampSection.style.textAlign = 'left';
+            }
+
+            // Update stamp hover text
+            document.getElementById('stampArea').setAttribute('data-hover', lang === 'ar' ? '📷 انقر لرفع صورة الختم' : '📷 Click to upload stamp');
+        }
+
+        function toggleLanguage() {
+            applyLanguage(currentLang === 'ar' ? 'en' : 'ar');
+        }
+
+        // Default logo SVG
+        var DEFAULT_LOGO = 'data:image/svg+xml,' + encodeURIComponent('<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" rx="16" fill="%230a7ad4"/><rect x="95" y="38" width="50" height="6" rx="3" fill="none" stroke="white" stroke-width="4"/><path d="M55,68 C55,58 65,52 80,52 L160,52 C175,52 185,58 185,68" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><circle cx="55" cy="72" r="10" fill="none" stroke="white" stroke-width="4"/><circle cx="185" cy="72" r="10" fill="none" stroke="white" stroke-width="4"/><line x1="55" y1="82" x2="35" y2="132" stroke="white" stroke-width="4"/><line x1="55" y1="82" x2="75" y2="132" stroke="white" stroke-width="4"/><line x1="30" y1="132" x2="80" y2="132" stroke="white" stroke-width="4"/><path d="M30,132 Q55,160 80,132" fill="none" stroke="white" stroke-width="4"/><line x1="185" y1="82" x2="165" y2="132" stroke="white" stroke-width="4"/><line x1="185" y1="82" x2="205" y2="132" stroke="white" stroke-width="4"/><line x1="160" y1="132" x2="210" y2="132" stroke="white" stroke-width="4"/><path d="M160,132 Q185,160 210,132" fill="none" stroke="white" stroke-width="4"/><path d="M108,52 L108,100 L120,80 L132,100 L132,52" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="120" y1="100" x2="120" y2="130" stroke="white" stroke-width="5" stroke-linecap="round"/></svg>');
+
+        // Load saved images on page load
+        (function() {
+            // Logo
+            var savedLogo = localStorage.getItem('saved_logo');
+            document.getElementById('logoImage').src = savedLogo || DEFAULT_LOGO;
+
+            // Stamp
+            var savedStamp = localStorage.getItem('saved_stamp');
+            if (savedStamp) {
+                var img = document.getElementById('stampImage');
+                img.src = savedStamp;
+                img.style.display = 'block';
+                document.getElementById('stampPlaceholder').style.display = 'none';
+            }
+
+            // Apply saved language
+            applyLanguage(currentLang);
+        })();
+    </script>
+</body>
+</html>
