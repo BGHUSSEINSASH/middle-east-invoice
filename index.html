@@ -278,8 +278,6 @@
         .notes-section .notes-content {
             font-size: 15px;
             color: #333;
-            direction: ltr;
-            text-align: left;
         }
 
         /* Stamp & Issuer */
@@ -695,7 +693,7 @@
                 notesLabel: 'Notes',
                 stampPlaceholder: '📷 Click to upload stamp & signature',
                 issuerLabel: 'Issuer:',
-                auditAr: 'للأغراض الإدارية والتدقيق',
+                auditAr: 'For Auditing & Administration Reasons',
                 auditEn: 'FOR AUDITING & ADMINISTRATION REASONS',
                 sizeAlert: 'Image too large. Maximum 5 MB.'
             }
@@ -735,17 +733,22 @@
             // Update date format
             document.getElementById('invoiceDate').textContent = lang === 'ar' ? getTodayArabic() : getTodayEnglish();
 
-            // Update CSS text-align for sections that depend on language
+            // Update CSS text-align and direction for sections that depend on language
             var clientSection = document.querySelector('.client-section');
             var notesSection = document.querySelector('.notes-section');
+            var notesContent = document.querySelector('.notes-content');
             var stampSection = document.querySelector('.stamp-section');
             if (lang === 'ar') {
                 clientSection.style.textAlign = 'right';
                 notesSection.style.textAlign = 'right';
+                notesContent.style.direction = 'rtl';
+                notesContent.style.textAlign = 'right';
                 stampSection.style.textAlign = 'right';
             } else {
                 clientSection.style.textAlign = 'left';
                 notesSection.style.textAlign = 'left';
+                notesContent.style.direction = 'ltr';
+                notesContent.style.textAlign = 'left';
                 stampSection.style.textAlign = 'left';
             }
 
@@ -758,7 +761,7 @@
         }
 
         // Default logo SVG
-        var DEFAULT_LOGO = 'data:image/svg+xml,' + encodeURIComponent('<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" rx="16" fill="%230a7ad4"/><rect x="95" y="38" width="50" height="6" rx="3" fill="none" stroke="white" stroke-width="4"/><path d="M55,68 C55,58 65,52 80,52 L160,52 C175,52 185,58 185,68" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><circle cx="55" cy="72" r="10" fill="none" stroke="white" stroke-width="4"/><circle cx="185" cy="72" r="10" fill="none" stroke="white" stroke-width="4"/><line x1="55" y1="82" x2="35" y2="132" stroke="white" stroke-width="4"/><line x1="55" y1="82" x2="75" y2="132" stroke="white" stroke-width="4"/><line x1="30" y1="132" x2="80" y2="132" stroke="white" stroke-width="4"/><path d="M30,132 Q55,160 80,132" fill="none" stroke="white" stroke-width="4"/><line x1="185" y1="82" x2="165" y2="132" stroke="white" stroke-width="4"/><line x1="185" y1="82" x2="205" y2="132" stroke="white" stroke-width="4"/><line x1="160" y1="132" x2="210" y2="132" stroke="white" stroke-width="4"/><path d="M160,132 Q185,160 210,132" fill="none" stroke="white" stroke-width="4"/><path d="M108,52 L108,100 L120,80 L132,100 L132,52" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="120" y1="100" x2="120" y2="130" stroke="white" stroke-width="5" stroke-linecap="round"/></svg>');
+        var DEFAULT_LOGO = 'data:image/svg+xml,' + encodeURIComponent('<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" rx="16" fill="%230a7ad4"/><rect x="95" y="32" width="50" height="5" rx="2.5" fill="white"/><path d="M60,60 C60,55 65,50 75,48 L165,48 C175,50 180,55 180,60" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><path d="M75,48 C70,48 64,52 60,60" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><path d="M165,48 C170,48 176,52 180,60" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><circle cx="56" cy="66" r="8" fill="none" stroke="white" stroke-width="4"/><path d="M56,66 C50,64 48,60 56,58 C64,60 62,64 56,66Z" fill="none" stroke="white" stroke-width="3"/><circle cx="184" cy="66" r="8" fill="none" stroke="white" stroke-width="4"/><path d="M184,66 C178,64 176,60 184,58 C192,60 190,64 184,66Z" fill="none" stroke="white" stroke-width="3"/><line x1="52" y1="74" x2="32" y2="130" stroke="white" stroke-width="4.5"/><line x1="60" y1="74" x2="80" y2="130" stroke="white" stroke-width="4.5"/><line x1="28" y1="130" x2="84" y2="130" stroke="white" stroke-width="4.5"/><path d="M28,130 Q56,165 84,130" fill="none" stroke="white" stroke-width="4.5"/><line x1="180" y1="74" x2="160" y2="130" stroke="white" stroke-width="4.5"/><line x1="188" y1="74" x2="208" y2="130" stroke="white" stroke-width="4.5"/><line x1="156" y1="130" x2="212" y2="130" stroke="white" stroke-width="4.5"/><path d="M156,130 Q184,165 212,130" fill="none" stroke="white" stroke-width="4.5"/><path d="M105,48 L105,105" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><path d="M135,48 L135,105" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/><path d="M105,105 L120,80 L135,105" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="120" y1="80" x2="120" y2="55" stroke="white" stroke-width="4" stroke-linecap="round"/></svg>');
 
         // Load saved images on page load
         (function() {
