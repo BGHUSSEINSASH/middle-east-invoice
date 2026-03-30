@@ -322,18 +322,12 @@
 
         /* Stamp & Issuer */
         .stamp-section {
-            position: absolute;
-            cursor: grab;
-            user-select: none;
-        }
-
-        .stamp-section.dragging {
-            cursor: grabbing;
-            opacity: 0.85;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            text-align: right;
         }
 
         @media print {
-            .stamp-section { cursor: default !important; opacity: 1 !important; }
             .stamp-placeholder { display: none !important; }
         }
 
@@ -828,12 +822,14 @@
                 notesSection.style.textAlign = 'right';
                 notesContent.style.direction = 'rtl';
                 notesContent.style.textAlign = 'right';
+                stampSection.style.textAlign = 'right';
                 issuerLine.style.direction = 'rtl';
             } else {
                 clientSection.style.textAlign = 'left';
                 notesSection.style.textAlign = 'left';
                 notesContent.style.direction = 'ltr';
                 notesContent.style.textAlign = 'left';
+                stampSection.style.textAlign = 'left';
                 issuerLine.style.direction = 'ltr';
             }
 
@@ -870,17 +866,6 @@
             var savedType = localStorage.getItem('invoice_type');
             if (savedType) document.getElementById('invoiceTypeSelect').value = savedType;
 
-            // Restore stamp position
-            var savedStampPos = localStorage.getItem('stamp_pos');
-            if (savedStampPos) {
-                var sp = JSON.parse(savedStampPos);
-                document.querySelector('.stamp-section').style.left = sp.left;
-                document.querySelector('.stamp-section').style.top = sp.top;
-            } else {
-                document.querySelector('.stamp-section').style.left = '50px';
-                document.querySelector('.stamp-section').style.top = '480px';
-            }
-
             // Restore issuer position
             var savedPos = localStorage.getItem('issuer_pos');
             if (savedPos) {
@@ -892,55 +877,6 @@
                 document.getElementById('issuerLine').style.left = '50px';
                 document.getElementById('issuerLine').style.top = '620px';
             }
-        })();
-
-        // Draggable stamp section
-        (function() {
-            var el = document.querySelector('.stamp-section');
-            var isDragging = false, startX, startY, origLeft, origTop;
-
-            el.addEventListener('mousedown', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'IMG') return;
-                isDragging = true;
-                el.classList.add('dragging');
-                startX = e.clientX; startY = e.clientY;
-                origLeft = el.offsetLeft; origTop = el.offsetTop;
-                e.preventDefault();
-            });
-
-            document.addEventListener('mousemove', function(e) {
-                if (!isDragging) return;
-                el.style.left = (origLeft + e.clientX - startX) + 'px';
-                el.style.top = (origTop + e.clientY - startY) + 'px';
-            });
-
-            document.addEventListener('mouseup', function() {
-                if (!isDragging) return;
-                isDragging = false;
-                el.classList.remove('dragging');
-                localStorage.setItem('stamp_pos', JSON.stringify({ left: el.style.left, top: el.style.top }));
-            });
-
-            el.addEventListener('touchstart', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'IMG') return;
-                var t = e.touches[0];
-                isDragging = true;
-                startX = t.clientX; startY = t.clientY;
-                origLeft = el.offsetLeft; origTop = el.offsetTop;
-            }, { passive: true });
-
-            document.addEventListener('touchmove', function(e) {
-                if (!isDragging) return;
-                var t = e.touches[0];
-                el.style.left = (origLeft + t.clientX - startX) + 'px';
-                el.style.top = (origTop + t.clientY - startY) + 'px';
-            }, { passive: true });
-
-            document.addEventListener('touchend', function() {
-                if (!isDragging) return;
-                isDragging = false;
-                localStorage.setItem('stamp_pos', JSON.stringify({ left: el.style.left, top: el.style.top }));
-            });
         })();
 
         // Draggable issuer line
