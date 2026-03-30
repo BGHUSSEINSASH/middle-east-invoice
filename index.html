@@ -165,6 +165,46 @@
             letter-spacing: 3px;
         }
 
+        .invoice-type-select {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0a7ad4;
+            letter-spacing: 2px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            appearance: none;
+            -webkit-appearance: none;
+            text-align: center;
+            padding: 0 10px 0 0;
+        }
+
+        .invoice-type-select:focus {
+            outline: none;
+        }
+
+        .invoice-type-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .invoice-type-wrapper::after {
+            content: '▾';
+            font-size: 20px;
+            color: #0a7ad4;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        @media print {
+            .invoice-type-wrapper::after { display: none; }
+            .invoice-type-select { appearance: none; -webkit-appearance: none; }
+        }
+
         .invoice-date {
             font-size: 16px;
             color: #333;
@@ -522,7 +562,12 @@
 
             <!-- Invoice Title & Date (Left) -->
             <div class="invoice-title-area">
-                <div class="invoice-title" data-i18n="invoiceTitle">فـــاتورة</div>
+                <div class="invoice-type-wrapper">
+                    <select class="invoice-type-select" id="invoiceTypeSelect" onchange="saveInvoiceType()">
+                        <option value="invoice">فـــاتورة</option>
+                        <option value="quote">عرض سعر</option>
+                    </select>
+                </div>
                 <div class="invoice-date" contenteditable="true" id="invoiceDate">آذار, 09 2026</div>
             </div>
         </div>
@@ -593,6 +638,25 @@
     </div>
 
     <script>
+        // Invoice type titles per language
+        var TYPE_LABELS = {
+            ar: { invoice: 'فـــاتورة', quote: 'عرض سعر' },
+            en: { invoice: 'INVOICE', quote: 'QUOTATION' }
+        };
+
+        function saveInvoiceType() {
+            localStorage.setItem('invoice_type', document.getElementById('invoiceTypeSelect').value);
+        }
+
+        function updateInvoiceTypeOptions(lang) {
+            var sel = document.getElementById('invoiceTypeSelect');
+            var current = sel.value;
+            var labels = TYPE_LABELS[lang];
+            sel.options[0].text = labels.invoice;
+            sel.options[1].text = labels.quote;
+            sel.value = current;
+        }
+
         // Auto invoice number system
         var STORAGE_KEY = 'invoice_last_number';
         var MONTHS = [
@@ -752,6 +816,9 @@
             // Update language toggle button text
             document.querySelector('.btn-lang').textContent = t.btnLang;
 
+            // Update invoice type dropdown labels
+            updateInvoiceTypeOptions(lang);
+
             // Update date format
             document.getElementById('invoiceDate').textContent = lang === 'ar' ? getTodayArabic() : getTodayEnglish();
 
@@ -807,6 +874,10 @@
 
             // Apply saved language
             applyLanguage(currentLang);
+
+            // Restore invoice type
+            var savedType = localStorage.getItem('invoice_type');
+            if (savedType) document.getElementById('invoiceTypeSelect').value = savedType;
 
             // Restore issuer position
             var savedPos = localStorage.getItem('issuer_pos');
