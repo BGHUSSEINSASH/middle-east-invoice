@@ -284,6 +284,9 @@
         .stamp-section {
             margin-top: 30px;
             margin-bottom: 30px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
             text-align: right;
         }
 
@@ -347,7 +350,7 @@
         .issuer-line {
             font-size: 15px;
             color: #333;
-            margin-top: 10px;
+            margin-top: 6px;
         }
 
         /* Separator */
@@ -743,6 +746,7 @@
                 notesContent.style.direction = 'rtl';
                 notesContent.style.textAlign = 'right';
                 stampSection.style.textAlign = 'right';
+                stampSection.style.alignItems = 'flex-end';
                 issuerLine.style.direction = 'rtl';
                 issuerLine.style.textAlign = 'right';
             } else {
@@ -751,6 +755,7 @@
                 notesContent.style.direction = 'ltr';
                 notesContent.style.textAlign = 'left';
                 stampSection.style.textAlign = 'left';
+                stampSection.style.alignItems = 'flex-start';
                 issuerLine.style.direction = 'ltr';
                 issuerLine.style.textAlign = 'left';
             }
