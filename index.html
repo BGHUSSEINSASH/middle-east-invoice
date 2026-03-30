@@ -322,13 +322,20 @@
 
         /* Stamp & Issuer */
         .stamp-section {
-            margin-top: 30px;
-            margin-bottom: 30px;
+            position: absolute;
+            cursor: grab;
+            user-select: none;
             text-align: right;
+            z-index: 10;
+        }
+
+        .stamp-section.dragging {
+            cursor: grabbing;
         }
 
         @media print {
             .stamp-placeholder { display: none !important; }
+            .stamp-section { cursor: default !important; }
         }
 
         .stamp-svg {
@@ -620,7 +627,6 @@
 
         <!-- Bottom Footer -->
         <div class="bottom-footer">
-            <div class="inndirect-logo">:::inndirect</div>
             <div class="page-number">0</div>
         </div>
     </div>
@@ -866,6 +872,18 @@
             var savedType = localStorage.getItem('invoice_type');
             if (savedType) document.getElementById('invoiceTypeSelect').value = savedType;
 
+            // Restore stamp position
+            var savedStampPos = localStorage.getItem('stamp_pos');
+            var stampSect = document.querySelector('.stamp-section');
+            if (savedStampPos) {
+                var spos = JSON.parse(savedStampPos);
+                stampSect.style.left = spos.left;
+                stampSect.style.top = spos.top;
+            } else {
+                stampSect.style.left = '490px';
+                stampSect.style.top = '530px';
+            }
+
             // Restore issuer position
             var savedPos = localStorage.getItem('issuer_pos');
             if (savedPos) {
@@ -877,6 +895,76 @@
                 document.getElementById('issuerLine').style.left = '50px';
                 document.getElementById('issuerLine').style.top = '620px';
             }
+        })();
+
+        // Draggable stamp section
+        (function() {
+            var el = document.querySelector('.stamp-section');
+            var isDragging = false, dragOccurred = false, startX, startY, origLeft, origTop;
+
+            el.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                dragOccurred = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                origLeft = el.offsetLeft;
+                origTop = el.offsetTop;
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                var dx = e.clientX - startX;
+                var dy = e.clientY - startY;
+                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+                    dragOccurred = true;
+                    el.classList.add('dragging');
+                    el.style.left = (origLeft + dx) + 'px';
+                    el.style.top = (origTop + dy) + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                el.classList.remove('dragging');
+                if (dragOccurred) {
+                    localStorage.setItem('stamp_pos', JSON.stringify({ left: el.style.left, top: el.style.top }));
+                }
+            });
+
+            // Block click after drag to prevent accidental file open
+            el.addEventListener('click', function(e) {
+                if (dragOccurred) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    dragOccurred = false;
+                }
+            }, true);
+
+            // Touch support
+            el.addEventListener('touchstart', function(e) {
+                var t = e.touches[0];
+                isDragging = true;
+                dragOccurred = false;
+                startX = t.clientX; startY = t.clientY;
+                origLeft = el.offsetLeft; origTop = el.offsetTop;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                var t = e.touches[0];
+                dragOccurred = true;
+                el.style.left = (origLeft + t.clientX - startX) + 'px';
+                el.style.top = (origTop + t.clientY - startY) + 'px';
+            }, { passive: true });
+
+            document.addEventListener('touchend', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                if (dragOccurred) {
+                    localStorage.setItem('stamp_pos', JSON.stringify({ left: el.style.left, top: el.style.top }));
+                }
+            });
         })();
 
         // Draggable issuer line
