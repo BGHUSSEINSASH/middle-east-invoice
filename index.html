@@ -348,8 +348,6 @@
             font-size: 15px;
             color: #333;
             margin-top: 10px;
-            direction: ltr;
-            text-align: left;
         }
 
         /* Separator */
@@ -738,18 +736,23 @@
             var notesSection = document.querySelector('.notes-section');
             var notesContent = document.querySelector('.notes-content');
             var stampSection = document.querySelector('.stamp-section');
+            var issuerLine = document.querySelector('.issuer-line');
             if (lang === 'ar') {
                 clientSection.style.textAlign = 'right';
                 notesSection.style.textAlign = 'right';
                 notesContent.style.direction = 'rtl';
                 notesContent.style.textAlign = 'right';
                 stampSection.style.textAlign = 'right';
+                issuerLine.style.direction = 'rtl';
+                issuerLine.style.textAlign = 'right';
             } else {
                 clientSection.style.textAlign = 'left';
                 notesSection.style.textAlign = 'left';
                 notesContent.style.direction = 'ltr';
                 notesContent.style.textAlign = 'left';
                 stampSection.style.textAlign = 'left';
+                issuerLine.style.direction = 'ltr';
+                issuerLine.style.textAlign = 'left';
             }
 
             // Update stamp hover text
