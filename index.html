@@ -350,7 +350,26 @@
         .issuer-line {
             font-size: 15px;
             color: #333;
-            margin-top: 6px;
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .issuer-line:hover {
+            background: rgba(10,122,212,0.07);
+        }
+
+        .issuer-line.dragging {
+            cursor: grabbing;
+            background: rgba(10,122,212,0.12);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        @media print {
+            .issuer-line { cursor: default !important; background: none !important; box-shadow: none !important; }
         }
 
         /* Separator */
@@ -552,8 +571,10 @@
                 <div class="stamp-placeholder" id="stampPlaceholder" data-i18n="stampPlaceholder">📷 انقر لرفع صورة الختم والتوقيع</div>
                 <input type="file" id="stampInput" class="hidden-input" accept="image/*" onchange="handleStampUpload(this)">
             </div>
-            <div class="issuer-line"><span data-i18n="issuerLabel">Issuer:</span> <span contenteditable="true">علي فوزي</span></div>
         </div>
+
+        <!-- Issuer (freely draggable) -->
+        <div class="issuer-line" id="issuerLine"><span data-i18n="issuerLabel">المصدر:</span> <span contenteditable="true">علي فوزي</span></div>
 
         <!-- Separator -->
         <hr class="separator">
@@ -748,7 +769,6 @@
                 stampSection.style.textAlign = 'right';
                 stampSection.style.alignItems = 'flex-end';
                 issuerLine.style.direction = 'rtl';
-                issuerLine.style.textAlign = 'right';
             } else {
                 clientSection.style.textAlign = 'left';
                 notesSection.style.textAlign = 'left';
@@ -757,7 +777,6 @@
                 stampSection.style.textAlign = 'left';
                 stampSection.style.alignItems = 'flex-start';
                 issuerLine.style.direction = 'ltr';
-                issuerLine.style.textAlign = 'left';
             }
 
             // Update stamp hover text
@@ -788,6 +807,72 @@
 
             // Apply saved language
             applyLanguage(currentLang);
+
+            // Restore issuer position
+            var savedPos = localStorage.getItem('issuer_pos');
+            if (savedPos) {
+                var pos = JSON.parse(savedPos);
+                document.getElementById('issuerLine').style.left = pos.left;
+                document.getElementById('issuerLine').style.top = pos.top;
+            } else {
+                // Default position below stamp area
+                document.getElementById('issuerLine').style.left = '50px';
+                document.getElementById('issuerLine').style.top = '620px';
+            }
+        })();
+
+        // Draggable issuer line
+        (function() {
+            var el = document.getElementById('issuerLine');
+            var isDragging = false, startX, startY, origLeft, origTop;
+
+            el.addEventListener('mousedown', function(e) {
+                if (e.target.hasAttribute('contenteditable')) return;
+                isDragging = true;
+                el.classList.add('dragging');
+                startX = e.clientX;
+                startY = e.clientY;
+                origLeft = el.offsetLeft;
+                origTop = el.offsetTop;
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                var dx = e.clientX - startX;
+                var dy = e.clientY - startY;
+                el.style.left = (origLeft + dx) + 'px';
+                el.style.top = (origTop + dy) + 'px';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                el.classList.remove('dragging');
+                localStorage.setItem('issuer_pos', JSON.stringify({ left: el.style.left, top: el.style.top }));
+            });
+
+            // Touch support
+            el.addEventListener('touchstart', function(e) {
+                if (e.target.hasAttribute('contenteditable')) return;
+                var t = e.touches[0];
+                isDragging = true;
+                startX = t.clientX; startY = t.clientY;
+                origLeft = el.offsetLeft; origTop = el.offsetTop;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                var t = e.touches[0];
+                el.style.left = (origLeft + t.clientX - startX) + 'px';
+                el.style.top = (origTop + t.clientY - startY) + 'px';
+            }, { passive: true });
+
+            document.addEventListener('touchend', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                localStorage.setItem('issuer_pos', JSON.stringify({ left: el.style.left, top: el.style.top }));
+            });
         })();
     </script>
 </body>
